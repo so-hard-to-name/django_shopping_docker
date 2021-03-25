@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function(){
+        $('#btnSubmit').unbind('click');
+        $('#btnSubmit').click(function(e){
+            e.preventDefault();
+            var name = $('#pro_name').val();
+            var type = $('#pro_type').val();
+            var price = $('#pro_price').val();
+            var des = $('#pro_des').val();
+            var storage = $('#pro_storage').val();
+            var code = $('#pro_code').val();
+
+            if (name.length == 0 || type.length == 0 || price.length == 0 || des.length == 0 || storage == 0 || code == 0) {alert("please check the value");}
+            else {
+                var json_data = {
+                                    "new_product_name": name,
+                                    "new_product_type": type,
+                                    "new_product_price": price,
+                                    "new_product_des": des,
+                                    "new_product_storage": storage,
+                                    "new_product_code": code,
+                                    "csrfmiddlewaretoken": "{{ csrf_token }}"
+                                }
+                $.ajax({
+                    type: "POST",
+                    url: "{% url 'create_new_product'  %}",
+                    data: json_data,                   
+                    success: function(data){
+                        var resp = JSON.parse(data);                    
+                        window.location.href = "{% url 'product_list_view'  %}";                    
+                    },
+                    error: function(data){
+                        alert("Error");
+                    }
+                });
+            }
+        });
+    });
+</script>
+{% endblock extra_js %}
+
+
+{% block content %}
+<nav class="navbar fixed-top navbar-expand-lg navbar-light white scrolling-navbar">
+    <div class="container">
+      
+        <a class="navbar-brand waves-effect" href="#">
+            <strong class="blue-text">Cart</strong>
+        </a>
+
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link waves-effect" href="{% url 'product_list_view' %}">Home
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link waves-effect" href="{% url 'product_add_view' %}" >Add Product</a>
+                </li>          
+            </ul>                        
+        </div> 
+    </div>
+</nav>
+
+
+<main class="mt-5 pt-4">
+    <div class="container dark-grey-text mt-5">
+        <div class="row wow fadeIn">
+                   
+            <div class="col-md-6 mb-4">
+                <div class="p-4">
+                    <form action="" id="add_form" method="POST" class="form-horizontal">                        
+                        <fieldset>  
+                                             
+                            <div class="form-group">
+                                <label class="col-md-2 col-sm-2 col-xs-12 control-label">Product Type</label>
+                                <div class="col-md-5 col-sm-9 col-xs-12">
+                                    <select id="pro_type" name="pro_type" required>
+                                        {% for type in product_types %}
+                                            <option value="{{type.name}}">{{type.name}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <label class="col-md-2 col-sm-2 col-xs-12 control-label">Product Name</label>
+                                <div class="col-md-5 col-sm-9 col-xs-12">
+                                    <input type="text" id="pro_name" name="pro_name" required>
+                                </div>
+                                <label class="col-md-2 col-sm-2 col-xs-12 control-label">Product Price</label>
+                                <div class="col-md-5 col-sm-9 col-xs-12">
+                                    <input type="number" id="pro_price" name="pro_price" required>
+                                </div>
+                                <label class="col-md-2 col-sm-2 col-xs-12 control-label">Product Description</label>
+                                <div class="col-md-5 col-sm-9 col-xs-12">
+                                    <input type="text" id="pro_des" name="pro_des" required>
+                                </div>
+                                <label class="col-md-2 col-sm-2 col-xs-12 control-label">Product Storage</label>
+                                <div class="col-md-5 col-sm-9 col-xs-12">
+                                    <input type="number" id="pro_storage" name="pro_storage" required> 
+                                </div>
+                                <label class="col-md-2 col-sm-2 col-xs-12 control-label">Product Code</label>
+                                <div class="col-md-5 col-sm-9 col-xs-12">
+                                    <input type="text" id="pro_code" name="pro_code" required>
+                                </div>
+                            </div>                            
+                        </fieldset>
+                        <input type="button" name="Cancel" value="Cancel" class="btn" onclick='event.preventDefault(); window.location = "{% url "product_list_view" %}";'/>
+                        <input type="button" id="btnSubmit" name="Create" class="btn btn-primary" value="Add" />
+                    </form>                    
+                </div> 
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer class="page-footer text-center font-small mt-4 wow fadeIn">
+    <div class="footer-copyright py-3">
+        © 2019 Copyright      
+    </div>
+</footer>
+{% endblock content %}

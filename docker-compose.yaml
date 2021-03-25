@@ -1,0 +1,56 @@
+version: '3'
+services:
+    mariadb:
+        build:
+            context: database
+            dockerfile: db.Dockerfile
+        environment:
+            MYSQL_ROOT_PASSWORD: admin
+            MYSQL_DATABASE: cart_db
+            MYSQL_USER: user1
+            MYSQL_PASSWORD: pass
+        restart: on-failure
+        # volumes:
+        #  - ${PWD}/mariadb:/var/lib/mysql
+        #ports:
+         #   - 3306:3306
+        expose:
+            - 3306
+        networks:
+            - mynetwork
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin:latest
+        ports:
+            - 8002:80
+        environment:
+            - PMA_ARBITRARY=1
+            - PMA_HOST=mariadb
+        depends_on:
+            - mariadb
+        restart: on-failure
+        networks:
+            - mynetwork
+    myapp:
+        build:
+            context: src
+            dockerfile: Dockerfile
+        command: >
+            sh -c "/wait &&
+                   python manage.py migrate &&
+                   python manage.py runserver 0.0.0.0:8000"
+        environment:
+        - WAIT_HOSTS=mariadb:3306
+        - WAIT_HOSTS_TIMEOUT=300
+        - WAIT_SLEEP_INTERVAL=30
+        - WAIT_HOST_CONNECT_TIMEOUT=30
+        depends_on:
+            - mariadb
+        volumes:
+            - ./src/.:/app
+        ports:
+            - "8001:8000"
+        restart: on-failure
+        networks:
+            - mynetwork
+networks:
+    mynetwork:

@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function(){
+        $('#btnAddCart').unbind('click');
+        $('#btnAddCart').click(function(e){
+            e.preventDefault();
+            var amount = $('.form-control').val();
+            $.ajax({
+                type: "POST",
+                url: "{% url 'add_product_to_cart' product_detail.id %}",
+                data: {
+                    "new_cart_product_id": parseInt("{{product_detail.id}}"),
+                    "new_cart_product_amount": parseInt(amount),
+                    "csrfmiddlewaretoken": "{{ csrf_token }}"
+                    },
+                success: function(data){
+                    var resp = JSON.parse(data);                    
+                    $("#cart_count").text(resp.count);                    
+                },
+                error: function(data){
+                    alert("Error");
+                }
+            });
+            
+        });
+    });
+</script>
+{% endblock extra_js %}
+
+
+{% block content %}
+<nav class="navbar fixed-top navbar-expand-lg navbar-light white scrolling-navbar">
+    <div class="container">
+      
+        <a class="navbar-brand waves-effect" href="#">
+            <strong class="blue-text">Cart</strong>
+        </a>
+
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link waves-effect" href="{% url 'product_list_view' %}">Home
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link waves-effect" href="{% url 'product_add_view' %}" >Add Product</a>
+                </li>          
+            </ul>
+            
+            <ul class="navbar-nav nav-flex-icons">
+                <li class="nav-item">
+                    <a class="nav-link waves-effect">
+                        {% if cartproduct_count %}
+                            <span id="cart_count" class="badge red z-depth-1 mr-1"> {{ cartproduct_count }} </span>                                        
+                        {% endif %}
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="clearfix d-none d-sm-inline-block"> Cart </span>
+                    </a>
+                </li>         
+            </ul>
+        </div> 
+    </div>
+</nav>
+
+
+<main class="mt-5 pt-4">
+    <div class="container dark-grey-text mt-5">
+        <div class="row wow fadeIn">
+            <div class="col-md-6 mb-4">
+                <img src="https://mdbootstrap.com/img/Photos/Horizontal/E-commerce/Products/14.jpg" class="img-fluid" alt="">
+            </div>        
+            <div class="col-md-6 mb-4">
+                <div class="p-4">
+                    <div class="mb-3">
+                        <a href="">
+                            <span class="badge purple mr-1">{{product_detail.product_type.name}}</span>
+                        </a>                        
+                    </div>
+		    <p class="lead">                        
+                        <span>{{product_detail.product_name}}</span>
+                    </p>
+                    <p class="lead">                        
+                        <span>${{product_detail.price}}</span>
+                    </p>
+                    <p class="lead font-weight-bold">Description</p>
+
+                    <p>{{product_detail.description}}</p>
+
+                    <form class="d-flex justify-content-left">
+                        
+                        <input type="number" value="1" aria-label="Search" class="form-control" style="width: 100px">
+                        <button id="btnAddCart" class="btn btn-primary btn-md my-0 p" type="submit">Add to cart
+                            <i class="fas fa-shopping-cart ml-1"></i>
+                        </button>
+                    </form>
+                </div> 
+            </div>
+        </div>     
+        <hr>
+
+        <div class="row d-flex justify-content-center wow fadeIn">        
+            <div class="col-md-6 text-center">
+                <h4 class="my-4 h4">Additional information</h4>                
+            </div>
+        </div>
+      
+        <div class="row wow fadeIn">
+            <div class="col-lg-4 col-md-12 mb-4">
+                <img src="https://mdbootstrap.com/img/Photos/Horizontal/E-commerce/Products/11.jpg" class="img-fluid" alt="">
+            </div>
+            <div class="col-lg-4 col-md-6 mb-4">
+                <img src="https://mdbootstrap.com/img/Photos/Horizontal/E-commerce/Products/12.jpg" class="img-fluid" alt="">
+            </div>
+            <div class="col-lg-4 col-md-6 mb-4">
+                <img src="https://mdbootstrap.com/img/Photos/Horizontal/E-commerce/Products/13.jpg" class="img-fluid" alt="">
+            </div>
+        </div>      
+    </div>
+</main>
+
+<footer class="page-footer text-center font-small mt-4 wow fadeIn">
+    <div class="footer-copyright py-3">
+        © 2019 Copyright      
+    </div>
+</footer>
+{% endblock content %}

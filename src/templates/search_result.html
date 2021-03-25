@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+
+
+{% block extra_head %}  
+  <style type="text/css">
+    html,
+    body,
+    header,
+    .carousel {
+      height: 60vh;
+    }
+
+    @media (max-width: 740px) {
+
+      html,
+      body,
+      header,
+      .carousel {
+        height: 100vh;
+      }
+    }
+
+    @media (min-width: 800px) and (max-width: 850px) {
+
+      html,
+      body,
+      header,
+      .carousel {
+        height: 100vh;
+      }
+    }    
+
+    #sort {
+        margin-left: auto;
+    }
+
+    #sort li {
+        display: inline;                
+    }
+
+  </style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function(){
+        $('#btnSearch').unbind('click');
+        $('#btnSearch').click(function(){
+            var text = $('#txtSearch').val();
+            if (text.length == 0) {alert("please type smething to search.")}
+            else {
+                var url = "{% url 'search_result_view' '000001' %}";
+                
+                url = url.replace("000001", text);
+                window.location.href = url;
+            }
+        });
+    });
+
+    function sortProduct(method) {
+        var origin_div = document.querySelector('.row');
+        var els = Array.prototype.slice.call(document.querySelectorAll('.row > div'));        
+        
+
+        if (method === 'byname') {
+
+            els.sort(function(a, b) {
+                var nameA = $(a).find('.name').text().toLowerCase();
+                var nameB = $(b).find('.name').text().toLowerCase();                
+                return (nameA < nameB) ? -1 : (nameA > nameB) ? 1 : 0;
+            });
+            els.forEach(function(el) {
+                origin_div.appendChild(el);
+            });
+
+        } else if (method === 'byprice') {
+            
+            els.sort(function(a, b) {
+                var priceAtxt = $(a).find('.price').text();
+                var priceBtxt = $(b).find('.price').text();
+                var priceA = parseInt(priceAtxt.substring(0, priceAtxt.length-2));
+                var priceB = parseInt(priceBtxt.substring(0, priceBtxt.length-2));
+                return (priceA - priceB);
+            });
+            els.forEach(function(el) {
+                origin_div.appendChild(el);
+            });
+        }
+    }
+</script>
+{% endblock extra_js %}
+
+{% block content %}
+  
+<nav class="navbar fixed-top navbar-expand-lg navbar-light white scrolling-navbar">
+    <div class="container">
+      
+        <a class="navbar-brand waves-effect" href="#">
+            <strong class="blue-text">Cart</strong>
+        </a>
+
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link waves-effect" href="{% url 'product_list_view' %}">Home                    
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link waves-effect" href="{% url 'product_add_view' %}" >Add Product</a>
+                </li>          
+            </ul>
+            
+            <ul class="navbar-nav nav-flex-icons">
+                <li class="nav-item">
+                    <a class="nav-link waves-effect">
+                        {% if cartproduct_count %}
+                            <span class="badge red z-depth-1 mr-1"> {{ cartproduct_count }} </span>                                        
+                        {% endif %}
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="clearfix d-none d-sm-inline-block"> Cart </span>
+                    </a>
+                </li>         
+            </ul>
+        </div> 
+    </div>
+</nav>
+  <!-- Navbar -->
+
+  <!--Carousel Wrapper-->
+<div id="carousel-example-1z" class="carousel slide carousel-fade pt-4" data-ride="carousel">  
+    <div class="carousel-inner" role="listbox">
+        <div class="carousel-item active">
+            <div class="view" style="background-image: url('https://mdbootstrap.com/img/Photos/Horizontal/E-commerce/8-col/img%282%29.jpg'); background-repeat: no-repeat; background-size: cover;">
+                <div class="mask rgba-black-strong d-flex justify-content-center align-items-center">
+                    <div class="text-center white-text mx-5 wow fadeIn">
+                        <h1 class="mb-4">
+                            <strong>Search Result</strong>
+                        </h1>              
+                        <p class="mb-4 d-none d-md-block">
+                            <strong>Select everything you like and take them home.</strong>
+                        </p>              
+                    </div>  
+                </div>          
+            </div>
+        </div>
+    </div>
+</div>  
+
+<main>
+    <div class="container">
+        <nav class="navbar navbar-expand-lg navbar-dark mdb-color lighten-3 mt-3 mb-5">        
+            <form class="form-inline">
+                <div class="md-form my-0">
+                    <input id="txtSearch" class="form-control mr-sm-2" type="text" aria-label="Search">
+                    <button id="btnSearch" class="btn  btn-md my-0 p" type="button">Search</button>
+                </div>
+            </form>        
+        </nav>
+
+        
+        <div class="container" style="display: block;">
+            <ul id="sort">
+                <li>
+                    <a onclick="sortProduct('byname')" class="nav-link border border-light rounded waves-effect">
+                        Sort By Name
+                    </a>
+                </li>
+                <li>
+                    <a onclick="sortProduct('byprice')" class="nav-link border border-light rounded waves-effect">
+                        Sort By Price
+                    </a>
+                </li>
+            </ul>
+        </div>       
+              
+        
+
+        
+        
+        <div>
+            <section class="text-center mb-4">
+
+                <div class="row wow fadeIn">
+                    {% if products %}
+                        {% for product in products %}
+                            <div class="col-lg-3 col-md-6 mb-4">
+                                <div class="card">
+                                    <div class="view overlay">
+                                        <img src="https://mdbootstrap.com/img/Photos/Horizontal/E-commerce/Vertical/12.jpg" class="card-img-top"
+                                            alt="">
+                                        <a href="{% url 'product_detail_view' product.id %}">
+                                            <div class="mask rgba-white-slight"></div>
+                                        </a>
+                                    </div>
+                                    <div class="card-body text-center">
+                                        <a href="{% url 'product_detail_view' product.id %}" class="grey-text">
+                                            <h5>{{product.product_type.name}}</h5>
+                                        </a>
+                                        <h5>
+                                            <strong>
+                                                <a href="{% url 'product_detail_view' product.id %}" class="dark-grey-text name">{{product.product_name}}
+                                                    <span class="badge badge-pill danger-color">NEW</span>
+                                                </a>
+                                            </strong>
+                                        </h5>
+                                        <h4 class="font-weight-bold blue-text price">
+                                            <strong>{{product.price}}$</strong>
+                                        </h4>
+                                    </div>
+                                </div>
+                            </div>          
+                        {% endfor %}
+                    {% else %}
+                        <h1 class="mb-4">
+                            <strong>Sorry, there is no result.</strong>
+                        </h1> 
+                    {% endif %}
+                </div>
+            </section>
+        </div>
+
+        {% if is_paginated %}
+            <nav class="d-flex justify-content-center wow fadeIn">
+                <ul class="pagination pg-blue">                    
+                    {% if not page_obj.has_previous %}
+                    <li class="page-item disabled"><a href="#" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
+                    {% else %}                                        
+                        <li><a href="?page={{ page_obj.previous_page_number }}" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>                                        
+                    {% endif %}
+                    {% for page in page_obj.paginator.page_range %}
+                        {% if page_obj.number < 6 and forloop.counter < 13 or page_obj.number >= 6 and forloop.counter < page_obj.number|add:"6" and forloop.counter > page_obj.number|add:"-6" %}                                            
+                            {% if page_obj.number == forloop.counter %}
+                                <li class="page-item active"><a href="?page={{ forloop.counter }}">{{ forloop.counter }}</a><span class="sr-only">(current)</span></li>
+                            {% else %}
+                                <li class="page-link"><a href="?page={{ forloop.counter }}">{{ forloop.counter }}</a></li>
+                            {% endif %}                                            
+                        {% endif %}
+                    {% endfor %}
+                    <!-- NEXT PAGE -->
+                    {% if not page_obj.has_next %}
+                    <li class="page-item disabled"><a href="#" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>
+                    {% else %}                                        
+                        <li class="page-item"><a href="?page={{ page_obj.next_page_number }}" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>                                        
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}        
+    </div>
+
+    <footer class="page-footer text-center font-small mt-4 wow fadeIn">
+        <div class="footer-copyright py-3">
+            © 2019 Copyright      
+        </div>
+    </footer>
+</main>
+{% endblock content %}
