@@ -8,9 +8,21 @@ If you are using Windows 10 computer, change docker to "docker in Linux".
 
 Clone this project to your computer.
 
-Check the used port of your computer, are port 8001 and 8002 used? In this project, port 8002 is used to open phpmyadmin, and port 8001 is used for website.
-If any of them are used, edit the docker-compose.yaml file, line 24 and line 51.
+In this project, Port 8001 and 8002 are needed. Port 8002 is used to open phpmyadmin, and port 8001 is used for website.
+If any of them are used, edit the docker-compose.yaml file.
 
+```yaml
+phpmyadmin:
+        image: phpmyadmin/phpmyadmin:latest
+        ports:
+            - 8002:80
+```
+and 
+```yaml
+myapp:
+        ports:
+            - "8001:8000"
+```
 
 ## Start the project
 Open terminal and change the directory to where docker.compose.yaml is. 
